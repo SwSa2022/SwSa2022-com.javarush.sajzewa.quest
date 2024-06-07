@@ -2,12 +2,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>JSP - Hello World</title>
-</head>
+    <title>Text Quest</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"></head>
 <body>
-<h1><%= "Hello World!" %>
-</h1>
-<br/>
-<a href="hello-servlet">Hello Servlet</a>
+<div class="container">
+    <h1>Добро пожаловать в текстовый квест!</h1>
+    <form action="start" method="post">
+        <div class="form-group">
+            <label for="playerName">Введите ваше имя:</label>
+            <input type="text" class="form-control" id="playerName" name="playerName" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Старт</button>
+    </form>
+</div>
 </body>
 </html>
