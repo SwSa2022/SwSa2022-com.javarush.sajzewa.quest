@@ -1,30 +1,17 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-
-<!DOCTYPE html>
 <html>
 <head>
-    <title>Text Quest</title>
+    <title>Success</title>
     <meta charset="UTF-8">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
 <div class="container">
-    <h1>Добро пожаловать в текстовый квест!</h1>
-    <form action="start" method="post">
-        <div class="form-group">
-            <label for="playerName">Введите ваше имя:</label>
-            <input type="text" class="form-control" id="playerName" name="playerName" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Старт</button>
-    </form>
-<%--    <div class="row mt-3">--%>
-<%--        <div class="col">--%>
-<%--            <a href="stats.jsp" class="btn btn-info">View Statistics</a>--%>
-<%--        </div>--%>
-<%--    </div>--%>
+    <h1>Поздравляем!</h1>
+    <p>Ты успешно прошел все этапы путешествия и узнал много нового о нашей планете.</p>
+    <a href="restart" class="btn btn-secondary">На главную</a>
 </div>
-
 <footer class="footer mt-1 py-1 bg-light">
     <div class="container">
         <div class="card mt-3">
@@ -42,5 +29,6 @@
         </div>
     </div>
 </footer>
+
 </body>
 </html>
