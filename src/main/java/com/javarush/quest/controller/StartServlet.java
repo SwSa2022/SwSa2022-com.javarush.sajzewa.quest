@@ -12,22 +12,29 @@ import java.io.IOException;
 public class StartServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession(true);
         String playerName = request.getParameter("playerName");
-        HttpSession session = request.getSession();
-        session.setAttribute("playerName", playerName);
-        session.setAttribute("questionIndex", 0); // Corrected attribute name
+
+        if (playerName != null && !playerName.isEmpty()) {
+            session.setAttribute("playerName", playerName);
+        } else {
+            session.setAttribute("playerName", "test");
+        }
+
+        session.setAttribute("wins", session.getAttribute("wins") != null ? session.getAttribute("wins") : 0);
+        session.setAttribute("losses", session.getAttribute("losses") != null ? session.getAttribute("losses") : 0);
+        session.setAttribute("gamesPlayed", session.getAttribute("gamesPlayed") != null ? session.getAttribute("gamesPlayed") : 0);
+        session.setAttribute("ipAddress", request.getRemoteAddr());
+
+        session.setAttribute("questionIndex", 0);
         session.setAttribute("attempts", 0);
-        session.setAttribute("wins", 0);
-        session.setAttribute("losses", 0);
-        session.setAttribute("gamesPlayed", 0); // Make sure to set this attribute
-        session.setAttribute("ipAddress", request.getRemoteAddr()); // Set IP address
-        response.sendRedirect("/game");
-    }
+
+        response.sendRedirect("/game");    }
+
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.getRequestDispatcher("/index.jsp").forward(request, response);
     }
 }
+

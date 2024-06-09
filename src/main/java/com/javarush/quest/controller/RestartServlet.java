@@ -14,7 +14,11 @@ public class RestartServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
-        session.invalidate();
-        response.sendRedirect("/index.jsp");
+        if (session != null) {
+//            session.invalidate();
+            session.setAttribute("questionIndex", 0);
+            session.setAttribute("attempts", 0);
+        }
+        response.sendRedirect("index.jsp");
     }
 }

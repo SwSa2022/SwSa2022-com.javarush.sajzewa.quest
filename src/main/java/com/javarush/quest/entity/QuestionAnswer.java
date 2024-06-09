@@ -10,7 +10,7 @@ public class QuestionAnswer {
     private List<String> answers;
     private String correct;
 
-    public QuestionAnswer(String s, List<String> list, String number) {
+    public QuestionAnswer(String question, List<String> answers, String correct) {
     }
 
     public QuestionAnswer(String question, int id, List<String> answers, String correct) {

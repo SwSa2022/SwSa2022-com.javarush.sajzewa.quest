@@ -15,9 +15,9 @@
         <div class="card-body">
             <p>IP address: <c:out value="${sessionScope.ipAddress}"/></p>
             <p>Player: <c:out value="${sessionScope.playerName}"/></p>
-            <p>Game amount: <c:out value="${sessionScope.gamesPlayed}"/></p>
-            <p>Win amount: <c:out value="${sessionScope.wins}"/></p>
-            <p>Failure amount: <c:out value="${sessionScope.losses}"/></p>
+            <p>Games played: <c:out value="${sessionScope.gamesPlayed}"/></p>
+            <p>Wins: <c:out value="${sessionScope.wins}"/></p>
+            <p>Loses: <c:out value="${sessionScope.losses}"/></p>
             <p>Session ID: <c:out value="${sessionScope.session.id}"/></p>
         </div>
     </div>

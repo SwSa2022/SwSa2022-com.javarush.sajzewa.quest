@@ -44,20 +44,29 @@ public class QuestServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
 
-        HttpSession session = request.getSession();
+        HttpSession session = request.getSession(false);
+
+        if (session == null) {
+            response.sendRedirect("/index.jsp");
+            return;
+        }
+
         Integer questionIndex = (Integer) session.getAttribute("questionIndex");
         if (questionIndex == null) {
             questionIndex = 0;
             session.setAttribute("questionIndex", questionIndex);
         }
+
         if (questionIndex >= questions.size()) {
             response.sendRedirect("success.jsp");
             return;
         }
+
         QuestionAnswer currentQuestion = questions.get(questionIndex);
         request.setAttribute("question", currentQuestion.getQuestion());
         request.setAttribute("answers", currentQuestion.getAnswers());
-//        request.getRequestDispatcher("question.jsp").forward(request, response);
+        request.setAttribute("playerName", session.getAttribute("playerName"));
+
         RequestDispatcher dispatcher = request.getRequestDispatcher("question.jsp");
         dispatcher.forward(request, response);
     }
@@ -67,81 +76,58 @@ public class QuestServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
 
-        HttpSession session = request.getSession();
+        HttpSession session = request.getSession(false);
 
-        String playerName = request.getParameter("playerName");
-        if (playerName == null || playerName.isEmpty()) {
-            playerName = "test"; // Default name
+        if (session == null) {
+            response.sendRedirect("/index.jsp");
+            return;
         }
-        session.setAttribute("playerName", playerName);
-
-        Integer gamesPlayed = (Integer) session.getAttribute("gamesPlayed");
-        if (gamesPlayed == null) {
-            gamesPlayed = 0; // Default to 0
-        }
-        gamesPlayed++;
-        session.setAttribute("gamesPlayed", gamesPlayed);
-
-        String ipAddress = request.getRemoteAddr();
-        session.setAttribute("ipAddress", ipAddress);
 
         Integer questionIndex = (Integer) session.getAttribute("questionIndex");
         if (questionIndex == null) {
             questionIndex = 0;
         }
-        if (questionIndex >= questions.size()) {
-            response.sendRedirect("success.jsp");
-            return;
-        }
 
         String answer = request.getParameter("answer");
         QuestionAnswer currentQuestion = questions.get(questionIndex);
         String correctAnswer = currentQuestion != null ? currentQuestion.getCorrect() : null;
-
-        request.setAttribute("correctAnswer", correctAnswer);
-        request.setAttribute("selectedAnswer", answer);
-        request.setAttribute("session", session);
-        request.setAttribute("questions", questions);
+        Integer gamesPlayed = (Integer) session.getAttribute("gamesPlayed");
 
         if (correctAnswer != null && correctAnswer.trim().equalsIgnoreCase(answer != null ? answer.trim() : "")) {
-            Integer wins = (Integer) session.getAttribute("wins");
-            if (wins == null) {
-                wins = 0; // Default to 0
-            }
-            wins++;
-            session.setAttribute("wins", wins);
-
             questionIndex++;
             session.setAttribute("questionIndex", questionIndex);
+
             if (questionIndex >= questions.size()) {
-                request.getRequestDispatcher("success.jsp").forward(request, response);
+
+                Integer wins = (Integer) session.getAttribute("wins");
+                session.setAttribute("wins", wins + 1);
+
+                session.setAttribute("gamesPlayed", gamesPlayed +1);
+                response.sendRedirect("success.jsp");
                 return;
             }
         } else {
-            Integer losses = (Integer) session.getAttribute("losses");
-            if (losses == null) {
-                losses = 0; // Default to 0
-            }
-            losses++;
-            session.setAttribute("losses", losses);
-
             Integer attempts = (Integer) session.getAttribute("attempts");
             if (attempts == null) {
-                attempts = 1;
-            } else {
-                attempts++;
+                attempts = 0;
             }
+            attempts++;
+            session.setAttribute("attempts", attempts);
+
             if (attempts >= 2) {
-                request.getRequestDispatcher("failure.jsp").forward(request, response);
+                Integer losses = (Integer) session.getAttribute("losses");
+                session.setAttribute("losses", losses + 1);
+                session.setAttribute("gamesPlayed", gamesPlayed +1);
+                response.sendRedirect("failure.jsp");
                 return;
             }
-            session.setAttribute("attempts", attempts);
+
             request.setAttribute("retry", true);
         }
 
         doGet(request, response);
 
-        String userAgent = request.getHeader("User-Agent");
+                String userAgent = request.getHeader("User-Agent");
         if (userAgent != null && userAgent.contains("Firefox")) {
             // For Firefox browser
             response.setHeader("Set-Cookie", "JSESSIONID=" + session.getId() + "; SameSite=None; Secure");
@@ -151,83 +137,4 @@ public class QuestServlet extends HttpServlet {
         }
 
     }
-
-
-//    @Override
-//    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//        request.setCharacterEncoding("UTF-8");
-//        response.setCharacterEncoding("UTF-8");
-//
-//        HttpSession session = request.getSession();
-//
-//        String playerName = (String) session.getAttribute("playerName");
-//        if (playerName == null) {
-//            playerName = "test"; // Default name, or get from request parameter
-//            session.setAttribute("playerName", playerName);
-//        }
-//
-//        Integer gamesPlayed = (Integer) session.getAttribute("gamesPlayed");
-//        if (gamesPlayed == null) {
-//            gamesPlayed = 0; // Default to 0
-//        }
-//        gamesPlayed++;
-//        session.setAttribute("gamesPlayed", gamesPlayed);
-//
-//        String ipAddress = request.getRemoteAddr();
-//        session.setAttribute("ipAddress", ipAddress);
-//
-//        Integer questionIndex = (Integer) session.getAttribute("questionIndex");
-//        if (questionIndex == null) {
-//            questionIndex = 0;
-//        }
-//        String answer = request.getParameter("answer");
-//        QuestionAnswer currentQuestion = questions.get(questionIndex);
-//        String correctAnswer = currentQuestion.getCorrect();
-//
-//        request.setAttribute("correctAnswer", correctAnswer);
-//        request.setAttribute("selectedAnswer", answer);
-//
-//        LOGGER.log(Level.INFO, "Comparing answers: User answer = [{0}], Correct answer = [{1}]", new Object[]{answer, correctAnswer});
-//
-//        if (correctAnswer == null) {
-//            LOGGER.log(Level.SEVERE, "Correct answer is null for question index: {0}", questionIndex);
-//            throw new ServletException("Correct answer is null for question index: " + questionIndex);
-//        }
-//        if (correctAnswer.trim().equalsIgnoreCase(answer.trim())) {
-//            Integer wins = (Integer) session.getAttribute("wins");
-//            if (wins == null) {
-//                wins = 0; // Default to 0
-//            }
-//            wins++;
-//            session.setAttribute("wins", wins);
-//
-//            questionIndex++;
-//            session.setAttribute("questionIndex", questionIndex);
-//            if (questionIndex >= questions.size()) {
-//                request.getRequestDispatcher("success.jsp").forward(request, response);
-//                return;
-//            }
-//        } else {
-//            Integer losses = (Integer) session.getAttribute("losses");
-//            if (losses == null) {
-//                losses = 0; // Default to 0
-//            }
-//            losses++;
-//            session.setAttribute("losses", losses);
-//
-//            Integer attempts = (Integer) session.getAttribute("attempts");
-//            if (attempts == null) {
-//                attempts = 1;
-//            } else {
-//                attempts++;
-//            }
-//            if (attempts >= 2) {
-//                request.getRequestDispatcher("failure.jsp").forward(request, response);
-//                return;
-//            }
-//            session.setAttribute("attempts", attempts);
-//            request.setAttribute("retry", true);
-//        }
-//        doGet(request, response);
-//    }
 }
