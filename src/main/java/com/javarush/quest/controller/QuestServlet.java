@@ -4,6 +4,7 @@ import com.javarush.quest.entity.QuestionAnswer;
 import com.javarush.quest.util.QuestionLoader;
 
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -20,25 +21,27 @@ public class QuestServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(QuestServlet.class.getName());
     protected List<QuestionAnswer> questions;
+    private QuestionLoader questionLoader;
 
     @Override
-    public void init() throws ServletException {
-        super.init();
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
         try {
-            String fileName = getServletContext().getInitParameter("questionsFileName");
-            if (fileName == null || fileName.isEmpty()) {
-                fileName = "questions_answer.yml";
+            if (questionLoader == null) {
+                String fileName = config.getServletContext().getInitParameter("questionsFileName");
+                if (fileName == null || fileName.isEmpty()) {
+                    fileName = "questions_answer.yml";
+                }
+                questionLoader = new QuestionLoader(fileName);
             }
-            QuestionLoader questionLoader = new QuestionLoader(fileName);
             questions = questionLoader.getQuestions();
             LOGGER.log(Level.INFO, "QuestServlet initialized successfully with " + (questions != null ? questions.size() : 0) + " questions.");
-            getServletContext().setAttribute("questions", questions);
+            config.getServletContext().setAttribute("questions", questions);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error initializing QuestServlet", e);
             throw new ServletException("Error initializing QuestServlet", e);
         }
     }
-
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
@@ -68,7 +71,13 @@ public class QuestServlet extends HttpServlet {
         request.setAttribute("playerName", session.getAttribute("playerName"));
 
         RequestDispatcher dispatcher = request.getRequestDispatcher("question.jsp");
-        dispatcher.forward(request, response);
+        if (dispatcher != null) {
+            dispatcher.forward(request, response);
+        } else {
+            LOGGER.log(Level.INFO, "RequestDispatcher is " +dispatcher+ "for 'question.jsp'");
+            throw new ServletException("RequestDispatcher is null for 'question.jsp'");
+        }
+
     }
 
     @Override
@@ -127,7 +136,7 @@ public class QuestServlet extends HttpServlet {
 
         doGet(request, response);
 
-                String userAgent = request.getHeader("User-Agent");
+        String userAgent = request.getHeader("User-Agent");
         if (userAgent != null && userAgent.contains("Firefox")) {
             // For Firefox browser
             response.setHeader("Set-Cookie", "JSESSIONID=" + session.getId() + "; SameSite=None; Secure");
@@ -136,5 +145,15 @@ public class QuestServlet extends HttpServlet {
             response.setHeader("Set-Cookie", "JSESSIONID=" + session.getId() + "; SameSite=None; Secure; HttpOnly");
         }
 
+    }
+
+    // Setter for dependency injection (for testing)
+    public void setQuestionLoader(QuestionLoader questionLoader) {
+        this.questionLoader = questionLoader;
+    }
+
+    //(for testing)
+    public void setQuestions(List<QuestionAnswer> questions) {
+        this.questions = questions;
     }
 }
