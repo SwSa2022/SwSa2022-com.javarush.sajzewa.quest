@@ -2,6 +2,7 @@ package com.javarush.quest.controller;
 
 import com.javarush.quest.entity.QuestionAnswer;
 import com.javarush.quest.util.QuestionLoader;
+import lombok.Setter;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -16,11 +17,14 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@Setter
 @WebServlet("/game")
 public class QuestServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(QuestServlet.class.getName());
+    //(for testing)
     protected List<QuestionAnswer> questions;
+    // Setter for dependency injection (for testing)
     private QuestionLoader questionLoader;
 
     @Override
@@ -64,7 +68,6 @@ public class QuestServlet extends HttpServlet {
             response.sendRedirect("success.jsp");
             return;
         }
-
         QuestionAnswer currentQuestion = questions.get(questionIndex);
         request.setAttribute("question", currentQuestion.getQuestion());
         request.setAttribute("answers", currentQuestion.getAnswers());
@@ -74,7 +77,7 @@ public class QuestServlet extends HttpServlet {
         if (dispatcher != null) {
             dispatcher.forward(request, response);
         } else {
-            LOGGER.log(Level.INFO, "RequestDispatcher is " +dispatcher+ "for 'question.jsp'");
+            LOGGER.log(Level.INFO, "RequestDispatcher is  null for 'question.jsp'");
             throw new ServletException("RequestDispatcher is null for 'question.jsp'");
         }
 
@@ -130,6 +133,7 @@ public class QuestServlet extends HttpServlet {
                 response.sendRedirect("failure.jsp");
                 return;
             }
+            request.setAttribute("correctAnswer", correctAnswer);
 
             request.setAttribute("retry", true);
         }
@@ -147,13 +151,4 @@ public class QuestServlet extends HttpServlet {
 
     }
 
-    // Setter for dependency injection (for testing)
-    public void setQuestionLoader(QuestionLoader questionLoader) {
-        this.questionLoader = questionLoader;
-    }
-
-    //(for testing)
-    public void setQuestions(List<QuestionAnswer> questions) {
-        this.questions = questions;
-    }
 }

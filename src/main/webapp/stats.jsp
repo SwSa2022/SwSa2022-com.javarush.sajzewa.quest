@@ -18,7 +18,7 @@
             <p>Games played: <c:out value="${sessionScope.gamesPlayed}"/></p>
             <p>Wins: <c:out value="${sessionScope.wins}"/></p>
             <p>Loses: <c:out value="${sessionScope.losses}"/></p>
-            <p>Session ID: <c:out value="${sessionScope.session.id}"/></p>
+            <p>Session ID: <c:out value="${pageContext.session.id}"/></p>
         </div>
     </div>
     <!-- Back to Home Button -->
