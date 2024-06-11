@@ -8,13 +8,14 @@
 </head>
 <body>
 <div class="container">
+    <h2>${text}</h2>
     <h2>${question}</h2>
     <c:if test="${retry}">
-        <p class="text-danger">Неправильный ответ. Попробуйте снова!</p>
+        <p class="text-danger">Неправильный ответ. Попробуй снова!</p>
     </c:if>
     <form action="game" method="post">
         <div class="form-group">
-            <label>Ваш ответ:</label>
+            <label>Выбери правильный ответ:</label>
             <c:forEach var="answer" items="${answers}">
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="answer" id="answer_${answer}" value="${answer}" required>
